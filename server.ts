@@ -2,6 +2,7 @@ import { Client } from "pg";
 import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
+import iPostRecommendation from './reqInterface'
 
 config(); //Read .env file lines as though they were env vars.
 
@@ -26,9 +27,47 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
-app.get("/", async (req, res) => {
-  const dbres = await client.query('select * from categories');
+
+//to get the 10 most recent posts
+app.get("/recent", async (req, res) => {
+  try {
+  const dbres = await client.query('select * from recommendations order by date desc limit 10');
   res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
+//post a new recommendation
+app.post("/", async (req, res) => {
+  try {
+  const recom:iPostRecommendation = req.body
+  const dbres = await client.query('insert into recommendations(author,url,title,description,tags,content_type,rating,reason,build_week) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *',[recom.author,recom.url,recom.title,recom.description,recom.tags,recom.content_type,recom.rating,recom.reason,recom.build_week]);
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
+//
+app.get("/:filterVariable/:filterItem", async (req, res) => {
+  try {
+  const conditionVariable = req.params.filterVariable
+  const filterCondition = req.params.filterItem
+  console.log({conditionVariable,filterCondition})
+  let queryString:string;
+  if (conditionVariable === 'tags') {
+  queryString = `select * from recommendations where '${filterCondition}'=ANY(${conditionVariable})`
+  }else {
+    queryString = `select * from recommendations where ${conditionVariable}='${filterCondition}'`
+  }
+  
+  console.log(queryString)
+  const dbres = await client.query(queryString);
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
 });
 
 
