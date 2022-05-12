@@ -27,6 +27,16 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
+//to get ALL recent posts
+app.get("/all", async (req, res) => {
+  try {
+  const dbres = await client.query('select * from recommendations order by date desc');
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
 
 //to get the 10 most recent posts
 app.get("/recent", async (req, res) => {
