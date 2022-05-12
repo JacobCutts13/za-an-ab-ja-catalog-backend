@@ -37,6 +37,17 @@ app.get("/all", async (req, res) => {
   }
 });
 
+//to get ALL recent posts
+app.get("/all/:search", async (req, res) => {
+  try {
+  const search = req.params.search
+  const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
 
 //to get the 10 most recent posts
 app.get("/recent", async (req, res) => {
