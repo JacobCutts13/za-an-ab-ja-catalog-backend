@@ -37,7 +37,7 @@ app.get("/all", async (req, res) => {
   }
 });
 
-//to get ALL recent posts
+//to get ALL recent posts that include the search term
 app.get("/all/:search", async (req, res) => {
   try {
   const search = req.params.search
