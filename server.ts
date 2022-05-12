@@ -27,6 +27,27 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
+//to get ALL recent posts
+app.get("/All", async (req, res) => {
+  try {
+  const dbres = await client.query('select * from recommendations order by date desc');
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
+//to get ALL recent posts that include the search term
+app.get("/All/:search", async (req, res) => {
+  try {
+  const search = req.params.search
+  const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
+  res.json(dbres.rows);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
 
 //to get the 10 most recent posts
 app.get("/recent", async (req, res) => {
