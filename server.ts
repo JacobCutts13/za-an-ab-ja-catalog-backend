@@ -29,6 +29,7 @@ client.connect();
 
 //to get ALL recent posts
 app.get("/All", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
   try {
   const dbres = await client.query('select * from recommendations order by date desc');
   res.json(dbres.rows);
@@ -39,6 +40,7 @@ app.get("/All", async (req, res) => {
 
 //to get ALL recent posts that include the search term
 app.get("/All/:search", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
   try {
   const search = req.params.search
   const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
@@ -51,6 +53,7 @@ app.get("/All/:search", async (req, res) => {
 
 //to get the 10 most recent posts
 app.get("/recent", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
   try {
   const dbres = await client.query('select * from recommendations order by date desc limit 10');
   res.json(dbres.rows);
@@ -61,6 +64,7 @@ app.get("/recent", async (req, res) => {
 
 //post a new recommendation
 app.post("/", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
   try {
   const recom:iPostRecommendation = req.body
   const dbres = await client.query('insert into recommendations(author,url,title,description,tags,content_type,rating,reason,build_week) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *',[recom.author,recom.url,recom.title,recom.description,recom.tags,recom.content_type,recom.rating,recom.reason,recom.build_week]);
@@ -72,6 +76,7 @@ app.post("/", async (req, res) => {
 
 //
 app.get("/:filterVariable/:filterItem", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
   try {
   const conditionVariable = req.params.filterVariable
   const filterCondition = req.params.filterItem
