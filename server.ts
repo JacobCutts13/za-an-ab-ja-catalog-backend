@@ -28,7 +28,7 @@ const client = new Client(dbConfig);
 client.connect();
 
 //to get ALL recent posts
-app.get("/all", async (req, res) => {
+app.get("/All", async (req, res) => {
   try {
   const dbres = await client.query('select * from recommendations order by date desc');
   res.json(dbres.rows);
@@ -38,7 +38,7 @@ app.get("/all", async (req, res) => {
 });
 
 //to get ALL recent posts that include the search term
-app.get("/all/:search", async (req, res) => {
+app.get("/All/:search", async (req, res) => {
   try {
   const search = req.params.search
   const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
