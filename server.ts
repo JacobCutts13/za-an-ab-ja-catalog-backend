@@ -1,6 +1,6 @@
 import { Client } from "pg";
 import { config } from "dotenv";
-import express from "express";
+import express, { query } from "express";
 import cors from "cors";
 import iPostRecommendation from './reqInterface'
 
@@ -34,21 +34,23 @@ app.get("/All", async (req, res) => {
   const dbres = await client.query('select * from recommendations order by date desc');
   res.json(dbres.rows);
   } catch (error) {
+    res.status(404)
     console.error(error)
   }
 });
 
 //to get ALL recent posts that include the search term
-app.get("/All/:search", async (req, res) => {
-  res.set('access-control-allow-origin', '*')
-  try {
-  const search = req.params.search
-  const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
-  res.json(dbres.rows);
-  } catch (error) {
-    console.error(error)
-  }
-});
+// app.get("/All/:search", async (req, res) => {
+//   res.set('access-control-allow-origin', '*')
+//   try {
+//   const search = req.params.search
+//   const dbres = await client.query('select * from recommendations where author like $1 or title like $1 order by date desc', [search]);
+//   res.json(dbres.rows);
+//   } catch (error) {
+//     res.status(404)
+//     console.error(error)
+//   }
+// });
 
 
 //to get the 10 most recent posts
@@ -58,6 +60,7 @@ app.get("/recent", async (req, res) => {
   const dbres = await client.query('select * from recommendations order by date desc limit 10');
   res.json(dbres.rows);
   } catch (error) {
+    res.status(404)
     console.error(error)
   }
 });
@@ -70,31 +73,73 @@ app.post("/", async (req, res) => {
   const dbres = await client.query('insert into recommendations(author,url,title,description,tags,content_type,rating,reason,build_week) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *',[recom.author,recom.url,recom.title,recom.description,recom.tags,recom.content_type,recom.rating,recom.reason,recom.build_week]);
   res.json(dbres.rows);
   } catch (error) {
+    res.status(404)
     console.error(error)
   }
 });
 
 //
-app.get("/:filterVariable/:filterItem", async (req, res) => {
-  res.set('access-control-allow-origin', '*')
+app.get("/:selector/:searchItem", async (req, res) => {
+ // res.set('access-control-allow-origin', '*')
   try {
-  const conditionVariable = req.params.filterVariable
-  const filterCondition = req.params.filterItem
-  console.log({conditionVariable,filterCondition})
+  const selector = req.params.selector
+  const searchItem = req.params.searchItem
   let queryString:string;
-  if (conditionVariable === 'tags') {
-  queryString = `select * from recommendations where '${filterCondition}'=ANY(${conditionVariable})`
-  }else {
-    queryString = `select * from recommendations where ${conditionVariable}='${filterCondition}'`
+  if (selector === 'tags') {
+  queryString = `select * from recommendations where $1=ANY($2)`
+  const dbres = await client.query(queryString, [selector, searchItem])
+  res.json(dbres.rows)
   }
   
-  console.log(queryString)
-  const dbres = await client.query(queryString);
-  res.json(dbres.rows);
-  } catch (error) {
+  else if (selector === 'All'){
+    queryString = "select * from recommendations where lower(author) like lower($1) or lower(title) like lower($2) order by date desc"
+    const wildcardSearch = "%"+searchItem+"%"
+    const dbres = await client.query(queryString, [wildcardSearch, wildcardSearch])
+    
+    res.json(dbres.rows)
+
+  }
+  
+  else{
+    queryString = `select * from recommendations where lower(${selector}) like lower($1) order by date desc`;
+    const wildcardSearch = "%"+searchItem+"%"
+    const dbres = await client.query(queryString, [wildcardSearch])
+    res.json(dbres.rows)
+  }
+
+  }catch (error) {
+    res.status(404).send("can't get from database")
     console.error(error)
   }
 });
+
+// get list of users
+app.get("/users", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
+try{
+  const dbres = await client.query("select name, is_faculty, user_id from users order by name")
+  res.json(dbres.rows)
+}
+catch(error){
+  res.status(404)
+  console.error(error)
+}
+})
+
+// get user's saved recommendations
+app.get("/users/saved/:id", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
+try{
+  const id = parseInt(req.params.id)
+  const dbres = await client.query("WITH saved_array AS(select saved_recommendations from users where user_id = $1)select * from recommendations where id=any(SELECT unnest(saved_recommendations) FROM saved_array)", [id])
+  res.json(dbres.rows)
+  
+
+}
+catch(error){
+  console.error(error)
+}
+})
 
 
 //Start the server on the given port
