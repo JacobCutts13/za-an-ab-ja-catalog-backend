@@ -10,7 +10,10 @@ CREATE table recommendations(
   	content_type text not null,
   	rating text not null,
   	reason text,
-  	build_week int
+  	build_week int,
+  	CONSTRAINT recommendation_fk
+  	FOREIGN KEY (user_id) 
+  references users(user_id) ON DELETE CASCADE
 )
 
 
@@ -36,4 +39,11 @@ VALUES(
   'test rating',
   'test reason',
   2	
+)
+
+CREATE TABLE users (
+	user_id serial primary key,
+  	name text,
+  	is_faculty boolean,
+  	saved_recommendations int[]
 )
