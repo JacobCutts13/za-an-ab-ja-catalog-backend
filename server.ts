@@ -85,10 +85,11 @@ app.get("/:selector/:searchItem", async (req, res) => {
   const selector = req.params.selector
   const searchItem = req.params.searchItem
   let queryString:string;
-  if (selector === 'tags') {
-  queryString = `select * from recommendations where $1=ANY($2)`
-  const dbres = await client.query(queryString, [selector, searchItem])
+  if (selector === "tags") {
+  queryString = `select * from recommendations where $1=ANY(tags)`
+  const dbres = await client.query(queryString, [searchItem])
   res.json(dbres.rows)
+  
   }
   
   else if (selector === 'All'){
