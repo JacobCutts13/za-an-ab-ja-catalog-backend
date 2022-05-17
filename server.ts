@@ -70,7 +70,7 @@ app.post("/", async (req, res) => {
   res.set('access-control-allow-origin', '*')
   try {
   const recom:iPostRecommendation = req.body
-  const dbres = await client.query('insert into recommendations(author,url,title,description,tags,content_type,rating,reason,build_week) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *',[recom.author,recom.url,recom.title,recom.description,recom.tags,recom.content_type,recom.rating,recom.reason,recom.build_week]);
+  const dbres = await client.query('insert into recommendations(user_id,author,url,title,description,tags,content_type,rating,reason,build_week) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *',[recom.user_id, recom.author,recom.url,recom.title,recom.description,recom.tags,recom.content_type,recom.rating,recom.reason,recom.build_week]);
   res.json(dbres.rows);
   } catch (error) {
     res.status(404).send("can't get from database")

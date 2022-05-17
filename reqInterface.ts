@@ -1,4 +1,5 @@
 export default interface iPostRecommendation {
+    user_id: number;
     author:string|null,
     url:string,
     title:string,
