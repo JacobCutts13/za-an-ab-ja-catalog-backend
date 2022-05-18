@@ -118,7 +118,7 @@ app.get("/:selector/:searchItem", async (req, res) => {
 app.get("/users", async (req, res) => {
   res.set('access-control-allow-origin', '*')
 try{
-  const dbres = await client.query("select name, is_faculty, user_id from users order by name")
+  const dbres = await client.query("select * from users order by name")
   res.json(dbres.rows)
 }
 catch(error){
@@ -149,7 +149,6 @@ app.put("/users/saved/:id/:savedrec", async (req, res) => {
   const id = parseInt(req.params.id)
   const savedrec = parseInt(req.params.savedrec)
   const dbres = await client.query('update users set saved_recommendations = array_append(saved_recommendations, $1) where user_id = $2 returning *', [savedrec, id]);
-  ;
   res.json(dbres.rows)
   } catch (error) {
     res.status(404).send("can't update database")
