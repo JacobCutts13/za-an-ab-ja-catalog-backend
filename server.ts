@@ -142,13 +142,28 @@ catch(error){
   console.error(error)
 }
 })
-
-app.put("/users/saved/:id/:savedrec", async (req, res) => {
+//add a saved recommendation 
+app.patch("/users/addsaved/:id/:savedrec", async (req, res) => {
   res.set('access-control-allow-origin', '*')
   try {
   const id = parseInt(req.params.id)
   const savedrec = parseInt(req.params.savedrec)
   const dbres = await client.query('update users set saved_recommendations = array_append(saved_recommendations, $1) where user_id = $2 returning *', [savedrec, id]);
+  res.json(dbres.rows)
+  } catch (error) {
+    res.status(404).send("can't update database")
+    console.error(error)
+  }
+});
+
+//remove a saved recommendation
+
+app.patch("/users/removesaved/:id/:savedrec", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
+  try {
+  const id = parseInt(req.params.id)
+  const savedrec = parseInt(req.params.savedrec)
+  const dbres = await client.query('update users set saved_recommendations = array_remove(saved_recommendations, $1) where user_id = $2 returning *', [savedrec, id]);
   res.json(dbres.rows)
   } catch (error) {
     res.status(404).send("can't update database")
