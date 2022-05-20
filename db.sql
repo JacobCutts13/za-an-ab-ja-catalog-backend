@@ -47,3 +47,31 @@ CREATE TABLE users (
   	is_faculty boolean,
   	saved_recommendations int[]
 )
+
+create table comments(
+	comment_id serial primary key, 
+  	user_id int, 
+    post_id int, 
+  	comment text, 
+    CONSTRAINT user_fk
+  	FOREIGN KEY (user_id) 
+    references users(user_id) ON DELETE CASCADE,
+  	CONSTRAINT post_fk
+  	FOREIGN KEY (post_id) 
+    references recommendations(id) ON DELETE CASCADE
+  
+)
+
+create table likes(
+	like_id serial primary key,
+  	user_id int,
+    post_id int,
+  	likes int default 0 not null,
+    check(likes >= -1 and likes <= 1),
+    CONSTRAINT user_fk
+  	FOREIGN KEY (user_id)
+    references users(user_id) ON DELETE CASCADE,
+  	CONSTRAINT post_fk
+  	FOREIGN KEY (post_id)
+    references recommendations(id) ON DELETE CASCADE
+)
