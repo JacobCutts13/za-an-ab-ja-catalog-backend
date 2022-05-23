@@ -237,8 +237,20 @@ app.get("/likes", async (req, res) => {
   }
 })
 
-// post likes 
-// insert into likes(user_id, post_id, likes) values (1, 7, 1)
+// post likes to db
+app.post("/likes", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
+  try {
+    const { userid, postid, likes } = req.body
+    const query = "insert into likes(user_id, post_id, likes) values ($1, $2, $3)"
+    const dbres = await client.query(query, [userid, postid, likes])
+    res.json(dbres.rows);
+  } catch (error) {
+    res.status(400).send("can't post to database")
+    console.error(error)
+  }
+});
+
 
 
 //Start the server on the given port
