@@ -62,6 +62,8 @@ create table comments(
   
 )
 
+
+
 create table likes(
 	like_id serial primary key,
   	user_id int,
