@@ -172,13 +172,12 @@ app.patch("/users/removesaved/:id/:savedrec", async (req, res) => {
 });
 
 // get comments
-app.get("/comments/:userid/:postid", async (req, res) => {
+app.get("/comments/:postid", async (req, res) => {
   res.set('access-control-allow-origin', '*')
   try {
-    const userid = parseInt(req.params.userid)
     const postid = parseInt(req.params.postid)
-    const query = "select * from comments where user_id=$1 and post_id=$2"
-    const dbres = await client.query(query, [userid, postid])
+    const query = "select * from comments where post_id=$1"
+    const dbres = await client.query(query, [postid])
     res.json(dbres.rows)
   }
   catch (error) {
