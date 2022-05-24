@@ -67,7 +67,6 @@ create table likes(
   	user_id int,
     post_id int,
   	likes int default 0 not null,
-    check(likes >= -1 and likes <= 1),
     CONSTRAINT user_fk
   	FOREIGN KEY (user_id)
     references users(user_id) ON DELETE CASCADE,
