@@ -78,6 +78,26 @@ app.post("/", async (req, res) => {
   }
 });
 
+app.get("/likes/:id", async (req, res) => {
+  res.set('access-control-allow-origin', '*')
+  const userID= parseInt(req.params.id)
+  console.log(userID)
+  try {
+    const query = "select post_id, SUM(likes) as likes from likes where user_id=$1 group by post_id"
+    
+
+    const dbres= await client.query(query,[userID])
+
+    res.json(dbres.rows)
+
+  }
+  catch (error) {
+    res.status(404).send("can't get the likes from database")
+    console.error(error)
+  }
+})
+
+
 //
 app.get("/search/:selector/:searchItem", async (req, res) => {
   // res.set('access-control-allow-origin', '*')
@@ -172,12 +192,13 @@ app.patch("/users/removesaved/:id/:savedrec", async (req, res) => {
 });
 
 // get comments
-app.get("/comments/:postid", async (req, res) => {
+app.get("/comments/:userid/:postid", async (req, res) => {
   res.set('access-control-allow-origin', '*')
   try {
     const postid = parseInt(req.params.postid)
     const query = "select users.name, comments.comment from comments join users on users.user_id = comments.user_id where comments.post_id=$1"
     const dbres = await client.query(query, [postid])
+
     res.json(dbres.rows)
   }
   catch (error) {
@@ -216,6 +237,7 @@ app.delete("/comments/:commentid", async (req, res) => {
   }
 })
 
+
 // get likes 
 app.get("/likes", async (req, res) => {
   res.set('access-control-allow-origin', '*')
@@ -249,8 +271,7 @@ app.post("/likes", async (req, res) => {
     console.error(error)
   }
 });
-
-
+//this will return us an array of {post_id:number, likes:number}
 
 //Start the server on the given port
 const port = process.env.PORT;
