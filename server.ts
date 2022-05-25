@@ -196,7 +196,7 @@ app.get("/comments/:postid", async (req, res) => {
   res.set('access-control-allow-origin', '*')
   try {
     const postid = parseInt(req.params.postid)
-    const query = "select users.name, comments.comment from comments join users on users.user_id = comments.user_id where comments.post_id=$1"
+    const query = "select users.name, comments.comment, comments.comment_id from comments join users on users.user_id = comments.user_id where comments.post_id=$1"
     const dbres = await client.query(query, [postid])
     res.json(dbres.rows)
   }
