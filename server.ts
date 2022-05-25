@@ -87,7 +87,9 @@ app.get("/likes/:id", async (req, res) => {
     
 
     const dbres= await client.query(query,[userID])
-
+    for (let row of dbres.rows) {
+      row.likes=parseInt(row.likes)
+    }
     res.json(dbres.rows)
 
   }
